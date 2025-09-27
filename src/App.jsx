@@ -8,6 +8,7 @@ import GroupDetails from "./pages/GroupDetails";
 import CreateBet from "./pages/CreateBet";
 import BetDetails from "./pages/BetDetails";
 import Profile from "./pages/Profile";
+import TopBar from "./components/TopBar";
 
 import { AuthProvider } from "./contexts/authContext";
 
@@ -48,6 +49,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <TopBar />
       <Nav />
       <div className="w-full min-h-screen flex flex-col">
         {routesElement}
