@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import {
   doCreateUserWithEmailAndPassword,
-  setAuthDisplayName
+  setAuthDisplayName,
 } from "../firebase/auth";
-import { useNavigate, Navigate, Link } from "react-router-dom";
+import { syncUserProfile } from "../api/users";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -41,10 +42,17 @@ const Register = () => {
       // 1) Create auth user
       const cred = await doCreateUserWithEmailAndPassword(email, password);
 
-      // 2) Store username in Firebase Auth profile (displayName)
-      await setAuthDisplayName(username.trim());
+      const cleanedUsername = username.trim();
+      await setAuthDisplayName(cleanedUsername);
 
-      // 3) Redirect to home (auth context guard will handle)
+      await syncUserProfile({
+        authId: cred.user.uid,
+        email,
+        username: cleanedUsername,
+        displayName: cleanedUsername,
+        photoURL: cred.user.photoURL,
+      });
+
       navigate("/");
     } catch (err) {
       setErrorMessage(err?.message || "Sign up failed.");

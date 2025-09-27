@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "../firebase/auth";
-import {Navigate, Link} from 'react-router-dom';
+import { syncUserProfile } from "../api/users";
 
 const Login = () => {
     const { userLoggedIn } = useAuth()
@@ -12,21 +13,46 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState("")
 
     const onSubmit = async (e) => {
-        e.preventDefault()
-        if(!isSigningIn) {
-            setIsSigningIn(true)
-            await doSignInWithEmailAndPassword(email, password)
+        e.preventDefault();
+        if (isSigningIn) return;
+
+        try {
+            setErrorMessage("");
+            setIsSigningIn(true);
+            const credential = await doSignInWithEmailAndPassword(email, password);
+            const user = credential.user;
+            await syncUserProfile({
+                authId: user.uid,
+                email: user.email,
+                username: user.displayName,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+            });
+        } catch (err) {
+            setErrorMessage(err?.message || "Unable to sign in");
+            setIsSigningIn(false);
         }
-    }
+    };
 
     const onGoogleSignIn = async () => {
-        if(!isSigningIn) {
-            setIsSigningIn(true)
-            doSignInWithGoogle().catch(err => {
-                setIsSigningIn(false)
-            })
+        if (isSigningIn) return;
+        try {
+            setErrorMessage("");
+            setIsSigningIn(true);
+            const credential = await doSignInWithGoogle();
+            const user = credential.user;
+            await syncUserProfile({
+                authId: user.uid,
+                email: user.email,
+                username: user.displayName,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+            });
+        } catch (err) {
+            setErrorMessage(err?.message || "Unable to sign in with Google");
+            setIsSigningIn(false);
         }
-    }
+    };
 
 
     return (
@@ -112,4 +138,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default Login;

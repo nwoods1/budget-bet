@@ -1,70 +1,92 @@
-# Getting Started with Create React App
+# Budget Bet
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Budget Bet is a social savings challenge where friends compete to stay under budget. The stack is:
 
-## Available Scripts
+- **Frontend**: React + Firebase authentication
+- **Backend**: FastAPI with MongoDB
+- **Bank data**: Plaid API integration point (simulated via stored transactions)
 
-In the project directory, you can run:
+Use it to create groups, propose bets that every member must accept, track everyone’s spending, and automatically crown a winner when the deadline hits.
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Node.js 18+
+- Python 3.10+
+- MongoDB running locally at `mongodb://localhost:27017`
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting started
 
-### `npm test`
+### 1. Start the API
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-### `npm run build`
+The API is exposed on `http://localhost:8000`. Swagger docs live at `http://localhost:8000/docs`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Start the React app
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm install
+npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Set `REACT_APP_API_BASE_URL` in a `.env` file if the API is not running on the default `http://localhost:8000`.
 
-### `npm run eject`
+Firebase authentication is already wired up. Update the configuration under `src/firebase/firebase.js` with your project credentials.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Key features
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Create groups by inviting friends via username
+- Propose, accept, and track bets with a budget cap and deadline
+- Log transactions against bets (simulating Plaid activity)
+- Dashboard summarising active bets, recent winners, and group activity
+- Profile management with Plaid transaction history
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Available scripts
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- `npm start` – run the React development server
+- `npm test` – launch the CRA test runner
+- `npm run build` – production build for the frontend
 
-## Learn More
+## Project structure
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+backend/          # FastAPI service
+src/api/          # Frontend API client wrappers
+src/pages/        # Route-driven React pages
+src/hooks/        # Custom hooks (auth + API helpers)
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## API overview
 
-### Code Splitting
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/users/sync` | Upsert a Firebase-authenticated user |
+| `GET /api/groups` | List groups for the signed-in user |
+| `POST /api/groups` | Create a new group and invite members |
+| `POST /api/bets` | Create a bet inside a group |
+| `POST /api/bets/{id}/accept` | Accept a pending bet |
+| `POST /api/bets/{id}/transactions` | Log spending for a bet |
+| `POST /api/bets/{id}/finalize` | Finalise a bet and determine the winner |
+| `GET /api/dashboard/{auth_id}` | Aggregated dashboard data |
+| `GET /api/plaid/transactions/{auth_id}` | Simulated Plaid feed |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+All endpoints return JSON and require only the Firebase auth identifier (provided by the frontend) to relate data.
 
-### Analyzing the Bundle Size
+## Testing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Frontend: `npm test`
+- Backend: use the auto-generated Swagger docs or integrate with your favourite API client.
 
-### Making a Progressive Web App
+## Future enhancements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Connect the transactions endpoint to real Plaid item access tokens
+- Add push notifications when bets are created or about to end
+- Track recurring budgets and streaks per user
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Happy budgeting!
