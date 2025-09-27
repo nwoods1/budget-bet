@@ -21,7 +21,6 @@ export default function Nav() {
       <div className="nav-center">
         <Link to="/">Dashboard</Link>
         <Link to="/groups">My Groups</Link>
-        <Link to="/leaderboard">Leaderboard</Link>
       </div>
 
       {/* Right: Button + Avatar */}

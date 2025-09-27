@@ -1,7 +1,6 @@
 import "./Home.css";
 import Button from "../components/button/Button";
-import StatCard from "../components/statCard/StatCard";
-import ActiveRace from "../components/activeRace/ActiveRace";
+import ActiveBet from "../components/activeBet/ActiveBet";
 
 export default function Home() {
   return (
@@ -23,40 +22,33 @@ export default function Home() {
           </p>
 
           <div className="hero__actions">
-            <Button
-              text="Start Group!"
-              onClick={() => console.log("Start race")}
-            />
+            <Button />
           </div>
         </div>
       </section>
 
-      {/* STATS */}
-      <section className="stats">
-        <div className="stats__grid">
-          <StatCard label="Active Races" value={3} icon="⚡" />
-          {/* Later: <StatCard label="Friends" value={12} icon="👥" /> etc. */}
+      {/* ACTIVE BETS */}
+      <section className="bet-section">
+        <div className="race-wrap">{/* keeps your spacing if you had it */}
+          <ActiveBet
+            title="Save $2000 Bet"
+            participants={[
+              { id: "u1", name: "Alice", avatarUrl: "https://i.pravatar.cc/64?img=1", baseline: 200, current: 150 },
+              { id: "u2", name: "Bob",   avatarUrl: "https://i.pravatar.cc/64?img=2", baseline: 200, current: 220 },
+              { id: "u3", name: "Cara",  avatarUrl: "https://i.pravatar.cc/64?img=3", baseline: 200, current: 200 },
+            ]}
+          />
+
+          <ActiveBet
+            title="Save $2000 Bet"
+            participants={[
+              { id: "u1", name: "Alice", avatarUrl: "https://i.pravatar.cc/64?img=1", baseline: 200, current: 150 },
+              { id: "u2", name: "Bob",   avatarUrl: "https://i.pravatar.cc/64?img=2", baseline: 200, current: 220 },
+              { id: "u3", name: "Cara",  avatarUrl: "https://i.pravatar.cc/64?img=3", baseline: 200, current: 200 },
+            ]}
+          />
         </div>
       </section>
-
-      <section className="race-section">
-        <div className="race-wrap">
-        {/* You can omit `participants` to use the component’s built-in demo data */}
-        <ActiveRace
-          participants={[
-          { id: "u1", name: "Alice", avatarUrl: "https://i.pravatar.cc/64?img=1", baseline: 200, current: 150 },
-          { id: "u2", name: "Bob",   avatarUrl: "https://i.pravatar.cc/64?img=2", baseline: 200, current: 220 },
-          { id: "u3", name: "Cara",  avatarUrl: "https://i.pravatar.cc/64?img=3", baseline: 200, current: 200 },
-          ]}
-        />
-        </div>
-      </section>
-
-
-
     </div>
-
-
-    
   );
 }
