@@ -20,6 +20,13 @@ export function getUserByEmail(email) {
   return apiFetch(`/users/by-email/${encodeURIComponent(email)}`);
 }
 
-export function listUsers() {
-  return apiFetch("/users");
+
+
+export async function listUsers() {
+  const users = await apiFetch("/users");
+  return Array.isArray(users)
+    ? users
+        .slice()
+        .sort((a, b) => a.username.localeCompare(b.username))
+    : [];
 }
