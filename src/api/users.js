@@ -20,6 +20,8 @@ export function getUserByEmail(email) {
   return apiFetch(`/users/by-email/${encodeURIComponent(email)}`);
 }
 
+
+
 export async function listUsers() {
   const users = await apiFetch("/users");
   return Array.isArray(users)
