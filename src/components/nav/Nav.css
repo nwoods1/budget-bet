@@ -1,0 +1,105 @@
+/* src/components/Nav/Nav.css */
+/* src/components/Nav/Nav.css */
+
+.navbar {
+  border-width: 5px;
+  background: #0b0b0b;
+  color: white;
+  padding: 12px 20px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Left section: logo + brand */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 45%, #22c55e 100%);
+  font-size: 18px;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 20px;
+  display: flex;
+  gap: 2px;
+}
+
+.brand .bet {
+  color: #60a5fa; /* blue */
+}
+.brand .race {
+  color: #22c55e; /* green */
+}
+
+/* Center links */
+.nav-center {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  margin: 0 auto;
+}
+
+.nav-center a {
+  color: #cbd5e1; /* slate-300 */
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.nav-center a:hover {
+  color: white;
+}
+
+/* Right: button + avatar */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1f2937; /* fallback bg */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logo-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 45%, #22c55e 100%);
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+}

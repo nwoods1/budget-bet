@@ -1,0 +1,25 @@
+.new-group-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #6d28d9;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-weight: 10;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.35);
+}
+
+.new-group-btn .plus {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  color: #6d28d9;
+  display: grid;
+  place-items: center;
+  font-weight: 500;
+}

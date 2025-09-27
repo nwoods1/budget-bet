@@ -10,7 +10,8 @@ import BetDetails from "./pages/BetDetails";
 import Profile from "./pages/Profile";
 
 import { AuthProvider } from "./contexts/authContext";
-import Nav from "./components/Nav";   // ← new import
+
+import Nav from "./components/nav/Nav";
 
 export default function App() {
   const routesArray = [
