@@ -63,8 +63,10 @@ export default function Groups() {
       });
 
       // 2) Add selected usernames as members (owner is already a member)
-      for (const uname of selected) {
-        // avoid double-adding yourself if you typed your own username
+      const ownerUsernameLower = currentUser?.backendUser?.usernameLower;
+      const filteredSelections = selected.filter(Boolean);
+      for (const uname of filteredSelections) {
+        if (ownerUsernameLower && uname.toLowerCase() === ownerUsernameLower) continue;
         await addMemberByUsername({ groupId: group.id, username: uname });
       }
 

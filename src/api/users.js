@@ -1,34 +1,25 @@
-const BASE =
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
-  process.env.REACT_APP_API_URL ||
-  "http://localhost:8000";
+import { apiFetch } from "./client";
 
-export async function searchUsers(q) {
-  if (!q) return [];
-  const res = await fetch(`${BASE}/users/search?q=${encodeURIComponent(q)}`);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json(); // [{ id, username, usernameLower }]
+export function searchUsers(q) {
+  if (!q) return Promise.resolve([]);
+  return apiFetch(`/users/search?q=${encodeURIComponent(q)}`);
 }
 
-
-export async function createUser({ email, username, photoURL = null }) {
-  const res = await fetch(`${BASE}/users`, {
+export function createUser({ email, username, photoURL = null, firebaseUid = null }) {
+  return apiFetch("/users", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, username, photoURL }),
+    body: { email, username, photoURL, firebaseUid },
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }
 
-export async function getUserByUsername(username) {
-  const res = await fetch(`${BASE}/users/by-username/${encodeURIComponent(username)}`);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+export function getUserByUsername(username) {
+  return apiFetch(`/users/by-username/${encodeURIComponent(username)}`);
 }
 
-export async function listUsers() {
-  const res = await fetch(`${BASE}/users`);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+export function getUserByEmail(email) {
+  return apiFetch(`/users/by-email/${encodeURIComponent(email)}`);
+}
+
+export function listUsers() {
+  return apiFetch("/users");
 }

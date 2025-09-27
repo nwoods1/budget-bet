@@ -1,15 +1,20 @@
-# models.py
 from __future__ import annotations
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
-from typing import Optional, List, Dict
-from datetime import datetime
+
+from datetime import datetime, date
 from enum import Enum
+from typing import Dict, List, Optional
+
 from bson import ObjectId
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, constr
+
 
 class PyObjectId(ObjectId):
+    """Pydantic-compatible ObjectId."""
+
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
+
     @classmethod
     def validate(cls, v):
         if isinstance(v, ObjectId):
@@ -19,6 +24,84 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
 
 
+# ---------------------------------------------------------------------------
+# User schemas
+# ---------------------------------------------------------------------------
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    username: constr(min_length=3, max_length=20)
+    photo_url: Optional[str] = Field(default=None, alias="photoURL")
+    firebase_uid: Optional[str] = Field(default=None, alias="firebaseUid")
+
+    model_config = ConfigDict(
+        json_encoders={ObjectId: str},
+        populate_by_name=True,
+    )
+
+
+class UserOut(BaseModel):
+    id: PyObjectId = Field(alias="_id")
+    email: EmailStr
+    username: str
+    username_lower: str = Field(alias="usernameLower")
+    photo_url: Optional[str] = Field(default=None, alias="photoURL")
+    firebase_uid: Optional[str] = Field(default=None, alias="firebaseUid")
+
+    model_config = ConfigDict(
+        json_encoders={ObjectId: str},
+        populate_by_name=True,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Group schemas
+# ---------------------------------------------------------------------------
+
+
+class GroupMember(BaseModel):
+    user_id: PyObjectId = Field(alias="userId")
+    role: str
+    joined_at: Optional[datetime] = Field(default=None, alias="joinedAt")
+
+    model_config = ConfigDict(
+        json_encoders={ObjectId: str},
+        populate_by_name=True,
+    )
+
+
+class GroupCreate(BaseModel):
+    name: str
+    owner_id: PyObjectId = Field(alias="ownerId")
+
+    model_config = ConfigDict(
+        json_encoders={ObjectId: str},
+        populate_by_name=True,
+    )
+
+
+class GroupOut(BaseModel):
+    id: PyObjectId = Field(alias="_id")
+    name: str
+    owner_id: PyObjectId = Field(alias="ownerId")
+    members: List[GroupMember] = []
+
+    model_config = ConfigDict(
+        json_encoders={ObjectId: str},
+        populate_by_name=True,
+    )
+
+
+class AddMemberByUsername(BaseModel):
+    username: str
+
+
+# ---------------------------------------------------------------------------
+# Bet schemas
+# ---------------------------------------------------------------------------
+
+
 class BetStatus(str, Enum):
     planned = "planned"
     active = "active"
@@ -26,137 +109,84 @@ class BetStatus(str, Enum):
     cancelled = "cancelled"
 
 
-class BetProgress(BaseModel):
-    user_id: PyObjectId
-    progress: float = 0.0
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
-
-    model_config = ConfigDict(
-        json_encoders={ObjectId: str},
-        populate_by_name=True
-    )
-
-
-class BetBase(BaseModel):
-    group_id: PyObjectId
+class BetCreate(BaseModel):
+    group_id: PyObjectId = Field(alias="groupId")
+    created_by: PyObjectId = Field(alias="createdBy")
     title: str
-    total_budget: float
-    user_progress: List[BetProgress] = []
-    start_date: datetime
-    end_date: datetime
+    total_budget: float = Field(alias="totalBudget", gt=0)
+    start_date: datetime = Field(alias="startDate")
+    end_date: datetime = Field(alias="endDate")
     status: BetStatus = BetStatus.planned
-    # optional freeform metadata, small only
-    meta: Dict[str, str] = {}
+    meta: Dict[str, str] = Field(default_factory=dict)
+    participant_ids: List[PyObjectId] = Field(default_factory=list, alias="participantIds")
 
     model_config = ConfigDict(
         json_encoders={ObjectId: str},
-        populate_by_name=True
+        populate_by_name=True,
     )
 
-class BetCreate(BetBase):
-    pass
 
-class BetUpdate(BaseModel):
-    title: Optional[str] = None
-    total_budget: Optional[float] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    status: Optional[BetStatus] = None
-    meta: Optional[Dict[str, str]] = None
-    # full replacement of progress list if supplied
-    user_progress: Optional[List[BetProgress]] = None
-
-    model_config = ConfigDict(
-        json_encoders={ObjectId: str},
-        populate_by_name=True
-    )
-
-class BetOut(BetBase):
+class BetOut(BaseModel):
     id: PyObjectId = Field(alias="_id")
-
-
-class GroupBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    # store member user ids
-    user_ids: List[PyObjectId] = []
-    # current bet id for convenience
-    current_bet_id: Optional[PyObjectId] = None
-    # history of past bet ids
-    past_bet_ids: List[PyObjectId] = []
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    is_active: bool = True
+    group_id: PyObjectId = Field(alias="groupId")
+    created_by: PyObjectId = Field(alias="createdBy")
+    title: str
+    total_budget: float = Field(alias="totalBudget")
+    start_date: datetime = Field(alias="startDate")
+    end_date: datetime = Field(alias="endDate")
+    status: BetStatus
+    meta: Dict[str, str] = Field(default_factory=dict)
+    participant_ids: List[PyObjectId] = Field(default_factory=list, alias="participantIds")
+    created_at: datetime = Field(alias="createdAt")
+    updated_at: datetime = Field(alias="updatedAt")
 
     model_config = ConfigDict(
         json_encoders={ObjectId: str},
-        populate_by_name=True
+        populate_by_name=True,
     )
 
 
-class GroupCreate(GroupBase):
-    pass
+# ---------------------------------------------------------------------------
+# Plaid schemas
+# ---------------------------------------------------------------------------
 
-class GroupUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    # membership changes handled via endpoints but allowed here too
-    user_ids: Optional[List[PyObjectId]] = None
-    current_bet_id: Optional[PyObjectId] = None
-    past_bet_ids: Optional[List[PyObjectId]] = None
-    is_active: Optional[bool] = None
+
+class PlaidLinkTokenCreate(BaseModel):
+    user_id: PyObjectId = Field(alias="userId")
 
     model_config = ConfigDict(
         json_encoders={ObjectId: str},
-        populate_by_name=True
+        populate_by_name=True,
     )
 
-class GroupOut(GroupBase):
-    id: PyObjectId = Field(alias="_id")
+
+class PlaidLinkTokenOut(BaseModel):
+    link_token: str = Field(alias="linkToken")
+    expiration: datetime
 
 
-# ---------- User ----------
-class UserBase(BaseModel):
-    username: str
-    email: EmailStr
-    # store group references on the user too if you want fast reverse lookups
-    group_ids: List[PyObjectId] = []
+class PlaidPublicTokenExchange(BaseModel):
+    user_id: PyObjectId = Field(alias="userId")
+    public_token: str = Field(alias="publicToken")
+    institution_name: Optional[str] = Field(default=None, alias="institutionName")
 
     model_config = ConfigDict(
         json_encoders={ObjectId: str},
-        populate_by_name=True
+        populate_by_name=True,
     )
 
-# For API create. Contains plaintext password input.
-class UserCreate(UserBase):
-    password: str
 
-# For API patch. Only optional fields.
-class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    password: Optional[str] = None
-    group_ids: Optional[List[PyObjectId]] = None
-
-    model_config = ConfigDict(
-        json_encoders={ObjectId: str},
-        populate_by_name=True
-    )
-
-# What you return to clients. Never include raw password here.
-class UserOut(UserBase):
-    id: PyObjectId = Field(alias="_id")
+class PlaidTransactionsOut(BaseModel):
+    transactions: List[Dict[str, object]]
+    next_cursor: Optional[str] = Field(default=None, alias="nextCursor")
 
 
-# ---------- Optional: DB-only model ----------
-# If you want a model that represents how you actually store users in Mongo
-# where password is already hashed and you never expose it
-class UserDB(UserBase):
-    _id: PyObjectId = Field(default_factory=PyObjectId)
-    password_hash: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+class PlaidTransactionsRequest(BaseModel):
+    user_id: PyObjectId = Field(alias="userId")
+    start_date: date = Field(alias="startDate")
+    end_date: date = Field(alias="endDate")
 
     model_config = ConfigDict(
         json_encoders={ObjectId: str},
-        populate_by_name=True
+        populate_by_name=True,
     )
