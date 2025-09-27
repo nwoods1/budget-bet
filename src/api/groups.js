@@ -1,32 +1,24 @@
-// Safe BASE for CRA (and also works if you later move to Vite)
-const BASE =
-  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
-  process.env.REACT_APP_API_URL ||
-  "http://localhost:8000";
+import { apiFetch } from "./client";
 
-export async function createGroup({ name, ownerId }) {
-  const res = await fetch(`${BASE}/groups`, {
+export function createGroup({ name, ownerId }) {
+  return apiFetch("/groups", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, ownerId }),
+    body: { name, ownerId },
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }
 
-export async function listMyGroups(memberId) {
-  const url = memberId ? `${BASE}/groups?memberId=${memberId}` : `${BASE}/groups`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+export function listMyGroups(memberId) {
+  const query = memberId ? `?memberId=${encodeURIComponent(memberId)}` : "";
+  return apiFetch(`/groups${query}`);
 }
 
-export async function addMemberByUsername({ groupId, username }) {
-  const res = await fetch(`${BASE}/groups/${groupId}/members`, {
+export function addMemberByUsername({ groupId, username }) {
+  return apiFetch(`/groups/${groupId}/members`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username }),
+    body: { username },
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+}
+
+export function getGroup(groupId) {
+  return apiFetch(`/groups/${groupId}`);
 }
