@@ -1,6 +1,7 @@
 import "./Home.css";
 import Button from "../components/button/Button";
 import StatCard from "../components/statCard/StatCard";
+import ActiveRace from "../components/activeRace/ActiveRace";
 
 export default function Home() {
   return (
@@ -37,6 +38,25 @@ export default function Home() {
           {/* Later: <StatCard label="Friends" value={12} icon="👥" /> etc. */}
         </div>
       </section>
+
+      <section className="race-section">
+        <div className="race-wrap">
+        {/* You can omit `participants` to use the component’s built-in demo data */}
+        <ActiveRace
+          participants={[
+          { id: "u1", name: "Alice", avatarUrl: "https://i.pravatar.cc/64?img=1", baseline: 200, current: 150 },
+          { id: "u2", name: "Bob",   avatarUrl: "https://i.pravatar.cc/64?img=2", baseline: 200, current: 220 },
+          { id: "u3", name: "Cara",  avatarUrl: "https://i.pravatar.cc/64?img=3", baseline: 200, current: 200 },
+          ]}
+        />
+        </div>
+      </section>
+
+
+
     </div>
+
+
+    
   );
 }
