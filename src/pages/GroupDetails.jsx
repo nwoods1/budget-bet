@@ -1,21 +1,42 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { listMyGroups } from "../api/groups";
+import { getGroup } from "../api/groups";
 import AddMemberForm from "../components/AddMemberForm";
 
 export default function GroupDetails() {
   const { groupId } = useParams();
   const [group, setGroup] = useState(null);
+  const [error, setError] = useState("");
 
-  async function refresh() {
-    // simple query to get the group again
-    const groups = await listMyGroups(); // or create a getGroupById API helper
-    setGroup(groups.find(g => g.id === groupId));
+  const refresh = useCallback(async () => {
+    try {
+      setError("");
+      const data = await getGroup(groupId);
+      setGroup(data);
+    } catch (err) {
+      console.error("Unable to load group", err);
+      setGroup(null);
+      setError(err?.message || "Unable to load group");
+    }
+  }, [groupId]);
+
+  useEffect(() => {
+    if (groupId) {
+      refresh();
+    }
+  }, [groupId, refresh]);
+
+  if (!group) {
+    if (error) {
+      return (
+        <div style={{ padding: "2rem" }}>
+          <h1>Group not available</h1>
+          <p style={{ color: "#b91c1c" }}>{error}</p>
+        </div>
+      );
+    }
+    return <div style={{ padding: "2rem" }}>Loading...</div>;
   }
-
-  useEffect(() => { refresh(); }, [groupId]);
-
-  if (!group) return <div>Loading...</div>;
 
   return (
     <div style={{ padding: "2rem" }}>

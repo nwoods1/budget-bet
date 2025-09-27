@@ -46,6 +46,11 @@ export default function CreateGroupModal({ open, onClose }) {
       setErr("");
 
       const ownerId = currentUser?.backendId;  // Ensure you set this when creating the backend user
+      if (!ownerId) {
+        throw new Error(
+          "We couldn't find your backend user id yet. Refresh the page after signing in or try again in a moment."
+        );
+      }
       const group = await createGroup({ name: name.trim(), ownerId });
 
       // Add selected usernames as members (owner already included)
