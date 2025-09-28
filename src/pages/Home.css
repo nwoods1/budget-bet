@@ -97,3 +97,14 @@
   opacity: 0.7;
   filter: drop-shadow(0 6px 14px rgba(124, 58, 237, 0.35));
 }
+
+
+
+/* Active Bets section layout (Home owns this) */
+.active-bets { background: #0b0b0b; padding: 28px 20px 44px; }
+.active-bets__inner { max-width: 1100px; margin: 0 auto; }
+.active-bets__head h2 {
+  margin: 0 0 14px 0; font-size: clamp(22px,3vw,32px);
+  color: #e5e7eb; letter-spacing: -0.02em;
+}
+.active-bets__list { display: flex; flex-direction: column; gap: 18px; }

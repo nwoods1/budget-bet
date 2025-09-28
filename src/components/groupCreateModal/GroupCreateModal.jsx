@@ -68,25 +68,6 @@ export default function GroupCreateModal({ open, onClose, onCreate }) {
             />
           </label>
 
-          <label className="gc-field">
-            <span>Target Amount (optional)</span>
-            <input
-              type="number"
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              placeholder="2000"
-            />
-          </label>
-
-          <label className="gc-field">
-            <span>Members to Add (comma-separated)</span>
-            <input
-              type="text"
-              value={members}
-              onChange={(e) => setMembers(e.target.value)}
-              placeholder="sara@ex.com, mike@ex.com"
-            />
-          </label>
 
           <div className="gc-row">
             <label className="gc-field">

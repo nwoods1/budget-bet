@@ -28,8 +28,7 @@ export default function GroupCard({
   const overflow = Math.max(0, others.length - visible.length);
 
   const statusLabel =
-    status === "active" ? "Race Active"
-    : status === "voting" ? "Voting Phase"
+    status === "active" ? "Active Bet"
     : "Completed";
 
   return (
@@ -39,8 +38,7 @@ export default function GroupCard({
         <span
           className={
             "group-card__status " +
-            (status === "active" ? "is-active" :
-             status === "voting" ? "is-voting" : "is-completed")
+            (status === "active" ? "is-active" : "is-completed")
           }
         >
           {statusLabel}
@@ -61,25 +59,6 @@ export default function GroupCard({
         </div>
       </div>
 
-      <div className="group-card__meta">
-        <div className="meta-item">
-          <div className="meta-label">Budget</div>
-          <div className="meta-value green">
-            ${budget.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="meta-item">
-          <div className="meta-label">Time Left</div>
-          <div className="meta-value purple">
-            {typeof daysLeft === "number" ? `${daysLeft} days` : "—"}
-          </div>
-        </div>
-      </div>
-
-      <div className="group-card__cta">
-        <ButtonNoPlus text={ctaText} onClick={onClick} />   
-      </div>
     </div>
   );
 }
