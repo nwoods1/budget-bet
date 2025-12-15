@@ -1,74 +1,79 @@
+import { useEffect, useMemo, useState } from "react";
+
 import "./Groups.css";
 import GroupCard from "../components/groupCard/GroupCard";
+import { getGroup, getUser, getUserForAvatar } from "../api";
 
 export default function Groups() {
-  const currentUserId = "me-123";
+  const currentUserId = useMemo(
+    () => process.env.REACT_APP_USER_ID ?? "demo-user",
+    [],
+  );
+  const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const groups = [
-    {
-      id: "g1",
-      title: "Office Savings Squad",
-      status: "active",
-      budget: 5000,
-      daysLeft: 18,
-      members: [
-        { id: "me-123", name: "You", avatarUrl: "https://i.pravatar.cc/64?img=64" },
-        { id: "1", name: "Sara", avatarUrl: "https://i.pravatar.cc/64?img=15" },
-        { id: "2", name: "Amir", avatarUrl: "https://i.pravatar.cc/64?img=20" },
-        { id: "3", name: "Leah", avatarUrl: "https://i.pravatar.cc/64?img=33" },
-        { id: "4", name: "Tom", avatarUrl: "https://i.pravatar.cc/64?img=43" },
-      ],
-    },
-    {
-      id: "g2",
-      title: "Fitness Friends Challenge",
-      status: "voting",
-      budget: 1000,
-      daysLeft: 12,
-      members: [
-        { id: "5", name: "Mike", avatarUrl: "https://i.pravatar.cc/64?img=12" },
-        { id: "6", name: "Ana", avatarUrl: "https://i.pravatar.cc/64?img=7" },
-        { id: "7", name: "Luis", avatarUrl: "https://i.pravatar.cc/64?img=24" },
-        { id: "me-123", name: "You", avatarUrl: "https://i.pravatar.cc/64?img=64" },
-      ],
-    },
-    {
-      id: "g3",
-      title: "Monthly Budget Battle",
-      status: "completed",
-      budget: 3000,
-      daysLeft: 0,
-      members: [
-        { id: "9",  name: "Joy", avatarUrl: "https://i.pravatar.cc/64?img=48" },
-        { id: "10", name: "Ari", avatarUrl: "https://i.pravatar.cc/64?img=36" },
-        { id: "11", name: "Ken", avatarUrl: "https://i.pravatar.cc/64?img=3"  },
-        { id: "12", name: "Zoe", avatarUrl: "https://i.pravatar.cc/64?img=56" },
-        { id: "13", name: "Bo",  avatarUrl: "https://i.pravatar.cc/64?img=22" },
-      ],
-    },
-  ];
+  useEffect(() => {
+    const cache = new Map();
 
-  // Map each status to a CTA text
-  const getCtaText = (status) => {
-    switch (status) {
-      case "active":
-        return "View Race";
-      case "voting":
-        return "Vote on Ideas";
-      case "completed":
-        return "View Results";
-      default:
-        return "View";
+    async function load() {
+      try {
+        setLoading(true);
+        setError("");
+        const user = await getUser(currentUserId);
+
+        const groupDetails = await Promise.all(
+          (user.group_ids ?? []).map(async (groupId) => {
+            const group = await getGroup(groupId);
+
+            const members = await Promise.all(
+              (group.user_ids ?? []).slice(0, 5).map(async (id) => {
+                if (!cache.has(id)) {
+                  cache.set(id, await getUserForAvatar(id));
+                }
+                const summary = cache.get(id);
+                return {
+                  id: summary._id,
+                  name: summary.username ?? summary.email,
+                  avatarUrl: summary.profile_url,
+                };
+              })
+            );
+
+            return {
+              id: group._id,
+              title: group.name,
+              status: group.current_bet_id ? "active" : "completed",
+              budget: 0,
+              daysLeft: undefined,
+              members,
+            };
+          })
+        );
+
+        setGroups(groupDetails);
+      } catch (err) {
+        setError(err.message ?? "Unable to load groups");
+      } finally {
+        setLoading(false);
+      }
     }
-  };
+
+    load();
+  }, [currentUserId]);
 
   return (
     <section className="groups-page">
       <div className="groups-head">
         <h2>My Groups</h2>
+        {loading && <span className="text-sm text-gray-500">Loading…</span>}
+        {error && <span className="text-sm text-red-500">{error}</span>}
       </div>
 
       <div className="groups-list">
+        {groups.length === 0 && !loading && !error && (
+          <p>You are not in any groups yet.</p>
+        )}
         {groups.map((g) => (
           <GroupCard
             key={g.id}
@@ -78,7 +83,7 @@ export default function Groups() {
             daysLeft={g.daysLeft}
             members={g.members}
             currentUserId={currentUserId}
-            ctaText={getCtaText(g.status)}  
+            ctaText={g.status === "active" ? "View Race" : "View"}
             onClick={() => console.log("Open group:", g.id)}
           />
         ))}
