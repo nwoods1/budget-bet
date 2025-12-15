@@ -9,8 +9,6 @@ import CreateBet from "./pages/CreateBet";
 import BetDetails from "./pages/BetDetails";
 import Profile from "./pages/Profile";
 
-import { AuthProvider } from "./contexts/authContext";
-
 import Nav from "./components/nav/Nav";
 
 export default function App() {
@@ -28,11 +26,11 @@ export default function App() {
   const routesElement = useRoutes(routesArray);
 
   return (
-    <AuthProvider>
+    <>
       <Nav />
       <div className="w-full min-h-screen flex flex-col">
         {routesElement}
       </div>
-    </AuthProvider>
+    </>
   );
 }

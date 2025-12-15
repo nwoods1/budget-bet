@@ -5,7 +5,7 @@ import "./ActiveBet.css";
  * Props:
  * - title: string
  * - daysLeft: number|string
- * - participants: [{ id, name, avatarUrl, baseline, current }]
+ * - participants: [{ id, name, avatarUrl, baseline, current, progress }]
  *
  * Meaning:
  *   baseline = expected spend in the window
@@ -16,12 +16,11 @@ export default function ActiveBet({ title, daysLeft, participants = [] }) {
   const data = participants.length
     ? participants
     : [
-        { id: "u1", name: "Sarah Kim", avatarUrl: "https://i.pravatar.cc/64?img=47", baseline: 2000, current: 490 },
-        { id: "u2", name: "Mike Torres", avatarUrl: "https://i.pravatar.cc/64?img=12", baseline: 2000, current: 754 },
-        { id: "u3", name: "Emma Wilson", avatarUrl: "https://i.pravatar.cc/64?img=5",  baseline: 2000, current: 1086 },
+        { id: "u1", name: "Sarah Kim", avatarUrl: "https://i.pravatar.cc/64?img=47", progress: 82 },
+        { id: "u2", name: "Mike Torres", avatarUrl: "https://i.pravatar.cc/64?img=12", progress: 64 },
+        { id: "u3", name: "Emma Wilson", avatarUrl: "https://i.pravatar.cc/64?img=5",  progress: 51 },
       ];
 
-  // delta = baseline - current (positive = saving more)
   const deltas = data.map(d => (d.baseline ?? 0) - (d.current ?? 0));
   const maxAbs = Math.max(1, ...deltas.map(Math.abs)); // avoid /0
   const toPos = (_, i) => 50 + (50 * deltas[i]) / maxAbs; // 50=center
@@ -35,9 +34,19 @@ export default function ActiveBet({ title, daysLeft, participants = [] }) {
 
       <div className="bet-list">
         {data.map((p, i) => {
-          const pos    = Math.max(0, Math.min(100, toPos(p, i)));
-          const amt    = `$${(p.current ?? 0).toLocaleString()}`;
-          const pctRaw = p.baseline ? ((p.baseline - p.current) / p.baseline) * 100 : 0;
+          const progress = typeof p.progress === "number" ? p.progress : undefined;
+
+          const pos    = Math.max(0, Math.min(100, progress ?? toPos(p, i)));
+          const amt    =
+            progress !== undefined
+              ? `${progress.toFixed(0)}%`
+              : `$${(p.current ?? 0).toLocaleString()}`;
+          const pctRaw =
+            progress !== undefined
+              ? progress
+              : p.baseline
+                ? ((p.baseline - p.current) / p.baseline) * 100
+                : 0;
           const pctLbl = `${pctRaw.toFixed(1)}%`;
           const badgeClass = pctRaw > 0 ? "good" : pctRaw < 0 ? "bad" : "neutral";
 

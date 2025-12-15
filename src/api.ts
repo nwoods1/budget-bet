@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+// CRA uses `REACT_APP_*` for env vars; fall back to localhost for local dev
+const BASE_URL = process.env.REACT_APP_API_URL ?? "http://localhost:8000";
 
 async function j<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
